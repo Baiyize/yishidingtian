@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>一食定天</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 背景音乐 -->
+  <audio id="bg-music" loop>
+    <source src="assets/music.flac" type="audio/flac">
+  </audio>
+  <button id="music-toggle" class="music-btn">🔊</button>
+
+  <!-- 游戏大厅界面 -->
+  <div id="hall-screen" class="screen active">
+    <img src="assets/images/游戏大厅界面.png" class="hall-background" alt="背景">
+
+    <!-- 账号信息区域 - 左上角 -->
+    <div class="account-info" id="account-info">
+      <div class="account-name-container">
+        <div class="account-name" id="account-name-display">未登录</div>
+        <div class="account-buttons">
+          <button class="account-btn" id="btn-switch-account">切换账号</button>
+          <button class="account-btn" id="btn-logout">退出账号</button>
+          <button class="account-btn danger" id="btn-delete-account">销毁账号</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右上角功能按钮 -->
+    <div class="top-right-buttons">
+      <img src="assets/images/公告按钮.png" class="top-btn" id="btn-notice" title="公告">
+      <img src="assets/images/卡池按钮.png" class="top-btn" id="btn-summon" title="召唤">
+      <img src="assets/images/邮件按钮.png" class="top-btn" id="btn-mail" title="邮件">
+      <img src="assets/images/背包按钮.png" class="top-btn" id="btn-backpack" title="背包">
+    </div>
+
+    <div class="hall-buttons">
+      <img src="assets/images/佳肴精研按钮.png" class="hall-btn" id="btn-cooking" alt="佳肴精研">
+      <img src="assets/images/常胜斗擂按钮.png" class="hall-btn" id="btn-arena" alt="常胜斗擂">
+      <img src="assets/images/珍馐陈设按钮.png" class="hall-btn" id="btn-collection" alt="珍馐陈设">
+      <img src="assets/images/厨神修炼按钮.png" class="hall-btn" id="btn-training" alt="厨神修炼">
+    </div>
+  </div>
+
+  <!-- 提示弹窗 -->
+  <div id="alert-modal" class="modal">
+    <div class="alert-content">
+      <p id="alert-text">该功能尚未开启，先去其他地方看看吧</p>
+      <button class="alert-btn" id="alert-close">确定</button>
+    </div>
+  </div>
+
+  <!-- 登录弹窗 -->
+  <div id="login-modal" class="modal">
+    <div class="login-content">
+      <h2>一食定天</h2>
+      <div class="login-form">
+        <input type="text" id="login-name" placeholder="输入账号名称(最多8字)" maxlength="8">
+        <input type="password" id="login-password" placeholder="输入密码">
+        <button id="btn-login">登录/注册</button>
+      </div>
+      <div class="existing-accounts" id="existing-accounts"></div>
+    </div>
+  </div>
+
+    <!-- 选择角色界面（佳肴精研） -->
+    <div id="select-character-screen" class="screen">
+      <div class="select-char-header">
+        <button class="back-btn" id="btn-back-select-char">返回</button>
+        <h2>选择角色</h2>
+      </div>
+      <div class="select-char-main">
+        <div class="select-char-list" id="select-char-list"></div>
+        <div class="select-char-detail" id="select-char-detail">
+          <div class="select-char-preview">
+            <img src="" id="select-char-img" alt="角色">
+            <div class="select-char-name" id="select-char-name">请选择角色</div>
+            <div class="select-char-bonus" id="select-char-bonus"></div>
+          </div>
+          <button class="confirm-char-btn" id="btn-confirm-char">确认选择</button>
+        </div>
+      </div>
+    </div>
+
+  <!-- 美食选择界面 -->
+  <div id="select-screen" class="screen">
+    <div class="select-header">
+      <button class="back-btn" id="btn-back-select">返回大厅</button>
+      <h2>选择要烹饪的美食</h2>
+      <button class="skill-btn" id="btn-skill-tree">技能树</button>
+    </div>
+
+    <!-- 美食详情展示区 -->
+    <div class="select-detail-area">
+      <div class="detail-left" id="detail-left-container">
+        <img src="assets/images/美食 全肉环香煲.png" id="food-detail-img" alt="美食">
+        <div class="food-name" id="food-detail-name">请选择一个美食</div>
+        <div class="food-desc" id="food-detail-desc">点击下方美食卡片查看详情</div>
+        <div class="food-tag" id="food-type-tag">美食类型</div>
+      </div>
+      <!-- 进化分支 - 在本源美食右边 -->
+      <div class="branch-area" id="food-branches"></div>
+      <!-- 详细信息按钮 -->
+      <button class="info-btn" id="btn-food-info" title="查看详细信息">📋</button>
+      <!-- 开始游戏按钮 - 最右边 -->
+      <button class="start-cook-btn" id="btn-start-cook">开始烹饪</button>
+    </div>
+
+    <!-- 美食列表 -->
+    <div class="food-list-area" id="food-list"></div>
+
+    <!-- 美食详细信息弹窗 -->
+    <div id="food-info-modal" class="modal">
+      <div class="food-info-content">
+        <h3 id="food-info-name"></h3>
+        <img src="" id="food-info-img" alt="美食">
+        <div class="food-info-desc" id="food-info-desc"></div>
+        <div class="food-info-branches" id="food-info-branches"></div>
+        <div class="food-info-bonus" id="food-info-bonus"></div>
+        <button class="close-btn" id="food-info-close">关闭</button>
+      </div>
+    </div>
+
+    <!-- 图鉴弹窗 -->
+    <div id="collection-modal" class="modal">
+      <div class="collection-content">
+        <h3>图鉴</h3>
+        <div class="collection-tabs">
+          <button class="tab-btn active" id="tab-ingredients">食材</button>
+          <button class="tab-btn" id="tab-tools">厨具</button>
+        </div>
+        <div class="collection-list" id="collection-list"></div>
+        <button class="close-btn" id="collection-close">关闭</button>
+      </div>
+    </div>
+
+    <!-- 图鉴详情弹窗 -->
+    <div id="collection-detail-modal" class="modal">
+      <div class="collection-detail-content">
+        <img src="" id="collection-detail-img" alt="物品">
+        <div class="collection-detail-name" id="collection-detail-name"></div>
+        <div class="collection-detail-type" id="collection-detail-type"></div>
+        <div class="collection-detail-stats" id="collection-detail-stats"></div>
+        <button class="collection-detail-close" id="collection-detail-close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 美食战斗增益详情弹窗 - 放在body级别，所有界面都能使用 -->
+  <div id="dish-bonus-modal" class="modal">
+    <div class="dish-bonus-content">
+      <h3 id="dish-bonus-name"></h3>
+      <img src="" id="dish-bonus-img" alt="美食">
+      <div class="dish-bonus-stats" id="dish-bonus-stats"></div>
+      <div class="dish-bonus-effects" id="dish-bonus-effects"></div>
+      <button class="close-btn" id="dish-bonus-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 技能树界面 -->
+  <div id="skill-screen" class="screen">
+    <div class="skill-header">
+      <button class="back-btn" id="btn-back-skill">返回</button>
+      <h2>技能树</h2>
+      <div class="drill-display">
+        <img src="assets/images/货币 钻研.png" alt="钻研">
+        <span id="drill-value">0</span>
+        <button class="exchange-btn" id="btn-show-exchange" title="兑换邀约">兑换邀约</button>
+      </div>
+    </div>
+    <div class="skill-tree" id="skill-tree"></div>
+  </div>
+
+  <!-- 选择厨具/食材弹窗 -->
+  <div id="item-select-modal" class="modal">
+    <div class="item-select-content">
+      <h3 id="item-select-title">选择</h3>
+      <div class="item-options" id="item-options"></div>
+    </div>
+  </div>
+
+  <!-- 游戏关卡界面 -->
+  <div id="game-screen" class="screen">
+    <div class="game-bg-container">
+      <img src="assets/images/道具关卡背景.png" id="bg-img" class="game-bg" alt="背景">
+    </div>
+
+    <!-- 顶部UI -->
+    <div class="game-top">
+      <button class="exit-btn" id="btn-exit">退出</button>
+      <div class="energy-display">
+        <img src="assets/images/货币 精力.png" alt="精力">
+        <span id="energy-value">1500</span>
+      </div>
+    </div>
+
+    <!-- 顶部故事气泡 -->
+    <div class="story-bubble" id="story-bubble">
+      <p id="story-text">欢迎来到美食的世界...</p>
+    </div>
+
+    <!-- 角色立绘 -->
+    <div class="character-container">
+      <img src="assets/images/太初奥斯卡待机.png" id="character-img" class="character-idle" alt="角色">
+      <div class="chat-bubble" id="chat-bubble">
+        <p id="chat-text">哇，这个食材看起来真不错！</p>
+      </div>
+    </div>
+
+    <!-- 美食图片和属性条 -->
+    <div class="food-display">
+      <img src="" id="cooking-food-img" alt="美食">
+      <div class="food-name-display" id="cooking-food-name"></div>
+      <div class="stat-bars">
+        <div class="stat-item">
+          <span class="stat-name">色泽</span>
+          <div class="stat-bar pink">
+            <div class="stat-fill" id="color-fill"></div>
+          </div>
+          <span class="stat-value" id="color-value">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">味道</span>
+          <div class="stat-bar orange">
+            <div class="stat-fill" id="taste-fill"></div>
+          </div>
+          <span class="stat-value" id="taste-value">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">品质</span>
+          <div class="stat-bar green">
+            <div class="stat-fill" id="quality-fill"></div>
+          </div>
+          <span class="stat-value" id="quality-value">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 厨具展示栏 -->
+    <div class="tools-panel">
+      <h4>厨具</h4>
+      <div class="tools-items" id="tools-items"></div>
+    </div>
+
+    <!-- 食材展示栏 -->
+    <div class="ingredients-panel">
+      <h4>食材</h4>
+      <div class="ingredients-items" id="ingredients-items"></div>
+    </div>
+
+    <!-- 关卡选择按钮 -->
+    <div class="level-buttons" id="level-buttons"></div>
+
+    <!-- 物品详情弹窗 -->
+    <div id="item-detail-modal" class="modal">
+      <div class="item-detail-content">
+        <img src="" id="detail-img" alt="物品">
+        <div class="detail-name" id="detail-name"></div>
+        <div class="detail-desc" id="detail-desc"></div>
+        <button class="detail-close" id="detail-close">关闭</button>
+      </div>
+    </div>
+
+    <!-- 获得物品提示 -->
+    <div id="reward-modal" class="modal">
+      <div class="reward-content">
+        <h3 id="reward-title">获得物品</h3>
+        <img src="" id="reward-img" alt="物品">
+        <p id="reward-name"></p>
+        <p id="reward-desc"></p>
+        <button class="confirm-btn" id="reward-confirm">确定</button>
+      </div>
+    </div>
+
+    <!-- 结算按钮 -->
+    <div class="settle-btn-container" id="settle-container" style="display:none;">
+      <button class="settle-btn" id="btn-settle">结算评分</button>
+    </div>
+  </div>
+
+  <!-- 结算界面 -->
+  <div id="result-screen" class="screen">
+    <div class="result-container">
+      <h2>烹饪完成！</h2>
+      <img src="" id="result-food-img" alt="美食">
+      <div class="result-name" id="result-food-name"></div>
+      <div class="result-stats">
+        <div class="result-stat">
+          <span>色泽</span>
+          <span id="result-color">0</span>
+        </div>
+        <div class="result-stat">
+          <span>味道</span>
+          <span id="result-taste">0</span>
+        </div>
+        <div class="result-stat">
+          <span>品质</span>
+          <span id="result-quality">0</span>
+        </div>
+      </div>
+      <div class="result-total">
+        <span>最终评分</span>
+        <span id="result-score">0</span>
+      </div>
+      <div class="result-reward">
+        <img src="assets/images/货币 钻研.png" alt="钻研">
+        <span>获得钻研: <span id="result-drill">0</span></span>
+      </div>
+      <button class="return-btn" id="btn-return-hall">返回大厅</button>
+    </div>
+  </div>
+
+  <!-- 限时挑战小游戏界面 -->
+  <div id="minigame-screen" class="screen">
+    <div class="minigame-container">
+      <h2>限时挑战</h2>
+      <p>在60秒内完成挑战！</p>
+      <div class="timer">剩余时间: <span id="minigame-timer">60</span>秒</div>
+      <div class="minigame-area" id="minigame-area"></div>
+      <div class="minigame-score">得分: <span id="minigame-score">0</span></div>
+    </div>
+  </div>
+
+  <!-- 常胜斗擂-玩法选择界面 -->
+  <div id="arena-screen" class="screen">
+    <div class="arena-header">
+      <button class="back-btn" id="btn-back-arena">返回大厅</button>
+      <h2>常胜斗擂</h2>
+      <button class="rules-btn" id="btn-battle-rules">游戏规则</button>
+    </div>
+    <div class="arena-modes">
+      <div class="arena-mode-card" id="arena-ai">
+        <img src="assets/images/人机试炼图片.png" alt="人机试炼">
+        <div class="mode-name">人机试炼</div>
+      </div>
+      <div class="arena-mode-card" id="arena-pvp">
+        <img src="assets/images/双人对弈图片.png" alt="双人对弈">
+        <div class="mode-name">双人对弈</div>
+      </div>
+      <div class="arena-mode-card" id="arena-4p">
+        <img src="assets/images/四人会战图片.png" alt="四人会战">
+        <div class="mode-name">四人会战</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏规则弹窗 -->
+  <div id="battle-rules-modal" class="modal">
+    <div class="rules-content">
+      <h3>常胜斗擂 - 游戏规则</h3>
+      <div class="rules-text">
+        <p><strong>【回合制战斗】</strong></p>
+        <p>每回合开始时，双方角色从自身速度值范围内随机选定一个数字，数字大的本回合优先行动。</p>
+        <br>
+        <p><strong>【魂力系统】</strong></p>
+        <p>初始魂力：4点，上限：6点</p>
+        <p>每回合恢复：2点魂力</p>
+        <p>释放技能需要消耗对应魂力值。</p>
+        <br>
+        <p><strong>【技能洗牌规则】</strong></p>
+        <p>每回合开始时，从技能池中随机抽取5个技能（可重复）进入技能施放区。</p>
+        <p>玩家每回合可选择其中一个技能施放。</p>
+        <br>
+        <p><strong>【状态效果】</strong></p>
+        <p>• 烧伤：每回合固定受到500点伤害（1回合）</p>
+        <p>• 冰冻：无法行动，每回合70%概率解除（永久，直到解除）</p>
+        <p>• 风化：每次造成伤害时受到300点伤害（1回合）</p>
+        <p>• 琉璃：无法行动，下回合解除并受到攻击力倍率伤害（1回合）</p>
+        <br>
+        <p><strong>【角色专属效果】</strong></p>
+        <p>• 匠心：每100点永久提高攻击力15%</p>
+        <p>• 香溢：每层永久提高攻击力13%</p>
+        <p>• 彩味：造成伤害时消耗1层施加随机负面效果</p>
+        <p>• 宴请八方：暴击率提高，伤害随魂力消耗增加</p>
+        <p>• 流彩+舜光：同时存在时暴击伤害额外提高50%</p>
+        <br>
+        <p><strong>【胜负判定】</strong></p>
+        <p>将敌方生命值降至0即可获胜，反之则失败。</p>
+      </div>
+      <button class="close-btn" id="rules-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 难度选择弹窗 -->
+  <div id="difficulty-modal" class="modal">
+    <div class="difficulty-content">
+      <h3>选择难度</h3>
+      <div class="difficulty-slider">
+        <label>敌人生命值倍率：<span id="difficulty-value">100%</span></label>
+        <input type="range" id="difficulty-slider" min="90" max="1000" value="100" step="10">
+      </div>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn" id="btn-easy">简单 (90%)</button>
+        <button class="difficulty-btn" id="btn-normal">普通 (100%)</button>
+        <button class="difficulty-btn" id="btn-hard">困难 (150%)</button>
+        <button class="difficulty-btn" id="btn-hell">地狱 (300%)</button>
+      </div>
+      <div class="difficulty-slider-group">
+        <label>敌人攻击力倍率：<span id="atk-difficulty-value">100%</span></label>
+        <input type="range" id="atk-difficulty-slider" min="90" max="1000" value="100" step="10">
+      </div>
+      <div class="difficulty-options">
+        <label><input type="checkbox" id="enemy-carry-dish"> 敌人携带美食</label>
+        <div id="enemy-dish-count" style="display:none;margin-top:10px;">
+          <label>携带数量：<span id="enemy-dish-count-value">3</span>个</label>
+          <input type="range" id="enemy-dish-slider" min="3" max="6" value="3" step="1">
+        </div>
+      </div>
+      <div class="difficulty-confirm">
+        <button class="confirm-btn" id="btn-confirm-difficulty">确认开始</button>
+      </div>
+      <button class="close-btn" id="difficulty-close">取消</button>
+    </div>
+  </div>
+
+  <!-- 角色选择界面 -->
+  <div id="character-select-screen" class="screen">
+    <div class="char-select-header">
+      <button class="back-btn" id="btn-back-char-select">返回</button>
+      <h2>选择角色</h2>
+      <div class="char-timer" id="char-select-timer">60</div>
+    </div>
+    <div class="char-select-main">
+      <!-- 左侧：角色立绘 -->
+      <img src="" id="char-preview-img" alt="角色" class="char-select-portrait" style="display:none;">
+      <!-- 中间：角色信息（属性/技能） -->
+      <div class="char-info-container">
+        <div class="char-info-tabs">
+          <button class="char-info-tab active" data-tab="stats">角色属性</button>
+          <button class="char-info-tab" data-tab="skills">技能描述</button>
+        </div>
+        <div class="char-info-content" id="char-info-content">
+          <div class="char-preview-name" id="char-preview-name">选择角色</div>
+          <div class="char-stats-display" id="char-stats-display"></div>
+          <div class="char-skills-display" id="char-skills-display" style="display:none;"></div>
+        </div>
+        <button class="start-battle-btn" id="btn-start-battle">开始对弈</button>
+      </div>
+      <!-- 右侧：角色列表 -->
+      <div class="char-list-area" id="char-list-area"></div>
+    </div>
+  </div>
+
+  <!-- 战斗界面 -->
+  <div id="battle-screen" class="screen">
+    <img src="assets/images/战斗场景瑶桃仙境.png" class="battle-bg" alt="战斗背景">
+
+    <!-- 左上角头像投降按钮 -->
+    <div class="battle-avatar-btn" id="btn-battle-surrender">
+      <img src="" id="battle-avatar-img" alt="头像">
+    </div>
+
+    <!-- 查看属性按钮 -->
+    <button class="view-stats-btn" id="btn-view-stats">查看属性</button>
+
+    <!-- 战斗日志 - 扩大可滚动 -->
+    <div class="battle-log-container">
+      <div class="battle-log" id="battle-log"></div>
+    </div>
+
+    <!-- 我方状态栏 -->
+    <div class="status-panel status-panel-player" id="player-status-panel">
+      <div class="status-title">状态</div>
+      <div class="status-list" id="player-status-list"></div>
+    </div>
+
+    <!-- 我方美食栏 -->
+    <div class="dish-panel dish-panel-player" id="player-dish-panel">
+      <div class="dish-title">美食</div>
+      <div class="dish-icons-list" id="player-dish-list"></div>
+    </div>
+
+    <!-- 我方角色 -->
+    <div class="battle-char battle-char-player">
+      <img src="" id="player-char-img" alt="我方角色" class="battle-chibi">
+      <div class="hp-bar">
+        <div class="hp-fill" id="player-hp-fill"></div>
+        <span id="player-hp-text">100%</span>
+      </div>
+    </div>
+
+    <!-- 敌方角色 -->
+    <div class="battle-char battle-char-enemy">
+      <img src="" id="enemy-char-img" alt="敌方角色" class="battle-chibi">
+      <div class="hp-bar">
+        <div class="hp-fill" id="enemy-hp-fill"></div>
+        <span id="enemy-hp-text">100%</span>
+      </div>
+    </div>
+
+    <!-- 敌方状态栏 -->
+    <div class="status-panel status-panel-enemy" id="enemy-status-panel">
+      <div class="status-title">状态</div>
+      <div class="status-list" id="enemy-status-list"></div>
+    </div>
+
+    <!-- 敌方美食栏 -->
+    <div class="dish-panel dish-panel-enemy" id="enemy-dish-panel">
+      <div class="dish-title">美食</div>
+      <div class="dish-icons-list" id="enemy-dish-list"></div>
+    </div>
+
+    <!-- 技能选择区 -->
+    <div class="battle-skills" id="battle-skills"></div>
+
+    <!-- 魂力显示 - 移到技能右边 -->
+    <div class="soul-display">
+      <span>魂力</span>
+      <div class="soul-value-display" id="soul-value">4</div>
+      <span>/6</span>
+    </div>
+  </div>
+
+  <!-- 战斗中状态详情弹窗 -->
+  <div id="battle-status-detail-modal" class="modal">
+    <div class="status-detail-content">
+      <h3 id="battle-status-name"></h3>
+      <div class="status-detail-type" id="battle-status-type"></div>
+      <div class="status-detail-desc" id="battle-status-desc"></div>
+      <div class="status-detail-duration" id="battle-status-duration"></div>
+      <button class="close-btn" id="battle-status-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 战斗中美食详情弹窗 -->
+  <div id="battle-dish-detail-modal" class="modal">
+    <div class="dish-detail-content">
+      <h3 id="battle-dish-name"></h3>
+      <img src="" id="battle-dish-img" alt="美食">
+      <div class="dish-detail-stats" id="battle-dish-stats"></div>
+      <div class="dish-detail-effect" id="battle-dish-effect"></div>
+      <button class="close-btn" id="battle-dish-close">关闭</button>
+    </div>
+  </div>
+
+    <!-- 珍馐陈设界面 -->
+  <div id="display-screen" class="screen">
+    <div class="display-header">
+      <button class="back-btn" id="btn-back-display">返回大厅</button>
+      <h2>珍馐陈设</h2>
+    </div>
+    <div class="display-main">
+      <div class="display-grid" id="display-grid"></div>
+    </div>
+    <div class="display-slots">
+      <div class="display-slot" data-slot="1"></div>
+      <div class="display-slot" data-slot="2"></div>
+      <div class="display-slot" data-slot="3"></div>
+      <div class="display-slot locked" data-slot="4">🔒</div>
+      <div class="display-slot locked" data-slot="5">🔒</div>
+      <div class="display-slot locked" data-slot="6">🔒</div>
+      <button class="equip-btn" id="btn-equip-dish">装备美食</button>
+      <button class="remove-btn" id="btn-remove-dish" style="display:none;">移除美食</button>
+    </div>
+  </div>
+
+  <!-- 战斗中属性查看弹窗 -->
+  <div id="battle-stats-modal" class="modal">
+    <div class="battle-stats-content">
+      <h3>角色属性</h3>
+      <div class="stats-comparison">
+        <div class="stats-column">
+          <h4>基础属性</h4>
+          <div id="base-stats-display"></div>
+        </div>
+        <div class="stats-column">
+          <h4>当前加成后属性</h4>
+          <div id="current-stats-display"></div>
+        </div>
+      </div>
+      <button class="close-btn" id="battle-stats-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 厨神修炼界面 -->
+  <div id="training-screen" class="screen">
+    <div class="training-header">
+      <button class="back-btn" id="btn-back-training">返回大厅</button>
+      <h2>厨神修炼</h2>
+    </div>
+    <div class="training-main">
+      <div class="char-list-panel" id="training-char-list"></div>
+      <div class="char-detail-panel">
+        <!-- 左侧：角色立绘和基本信息 -->
+        <div class="char-info-panel">
+          <div class="char-portrait-area">
+            <img src="" id="training-char-img" alt="角色立绘">
+          </div>
+          <div class="char-friendship">好感度: <span id="training-friendship">0</span></div>
+          <div class="char-stats-area" id="char-stats-area"></div>
+        </div>
+        <!-- 右侧：技能、星座、历练、牵绊 -->
+        <div class="char-tabs-panel">
+          <div class="char-tabs">
+            <button class="char-tab active" data-tab="skills">技能</button>
+            <button class="char-tab" data-tab="constellation">星座</button>
+            <button class="char-tab" data-tab="experience">历练</button>
+            <button class="char-tab" data-tab="bond">牵绊</button>
+          </div>
+          <div class="char-tab-content" id="char-tab-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 房间创建/加入弹窗 -->
+  <div id="room-modal" class="modal">
+    <div class="room-content">
+      <h3>双人对弈</h3>
+      <div class="room-options">
+        <button class="room-btn" id="btn-create-room">创建房间</button>
+        <button class="room-btn" id="btn-join-room">加入房间</button>
+      </div>
+      <div class="room-info" id="room-info" style="display:none;">
+        <p>房间码: <span id="room-code" style="font-size:24px;font-weight:bold;color:#ffa500;"></span></p>
+        <p style="color:#666;font-size:12px;">请将房间码分享给好友</p>
+        <p style="color:#ffa500;">等待玩家加入...</p>
+      </div>
+      <div class="join-input" id="join-input" style="display:none;">
+        <input type="text" id="input-room-code" placeholder="输入房间码">
+        <button id="btn-confirm-join">加入</button>
+      </div>
+      <button class="close-btn" id="room-close">取消</button>
+    </div>
+  </div>
+
+  <!-- 公告弹窗 -->
+  <div id="notice-modal" class="modal">
+    <div class="notice-content">
+      <h3>公告</h3>
+      <div class="notice-list" id="notice-list"></div>
+      <div class="notice-detail" id="notice-detail" style="display:none;">
+        <h4 id="notice-detail-title"></h4>
+        <p id="notice-detail-date" style="color:#666;font-size:12px;"></p>
+        <div id="notice-detail-content"></div>
+        <button class="back-btn" id="notice-detail-back">返回列表</button>
+      </div>
+      <button class="close-btn" id="notice-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 邮件弹窗 -->
+  <div id="mail-modal" class="modal">
+    <div class="mail-content">
+      <h3>邮件</h3>
+      <div class="mail-list" id="mail-list"></div>
+      <div class="mail-detail" id="mail-detail" style="display:none;">
+        <h4 id="mail-detail-title"></h4>
+        <p id="mail-detail-date" style="color:#666;font-size:12px;"></p>
+        <div id="mail-detail-content"></div>
+        <div id="mail-attachments"></div>
+        <button class="claim-btn" id="btn-claim-mail">领取附件</button>
+        <button class="back-btn" id="mail-detail-back">返回列表</button>
+      </div>
+      <button class="close-btn" id="mail-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 背包弹窗 -->
+  <div id="backpack-modal" class="modal">
+    <div class="backpack-content">
+      <h3>背包</h3>
+      <div class="backpack-list" id="backpack-list"></div>
+      <div class="backpack-detail" id="backpack-detail" style="display:none;">
+        <img src="" id="backpack-detail-img" alt="道具">
+        <h4 id="backpack-detail-name"></h4>
+        <p id="backpack-detail-count"></p>
+        <p id="backpack-detail-desc"></p>
+        <button class="use-btn" id="btn-use-item">使用</button>
+        <button class="back-btn" id="backpack-detail-back">返回</button>
+      </div>
+      <button class="close-btn" id="backpack-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 召唤界面 -->
+  <div id="summon-screen" class="screen">
+    <div class="summon-header">
+      <button class="back-btn" id="btn-back-summon">返回大厅</button>
+      <div class="summon-currency">
+        <img src="assets/images/货币 邀约.png" alt="邀约">
+        <span id="invite-value">0</span>
+      </div>
+    </div>
+
+    <!-- 卡池列表 - 左侧 -->
+    <div class="summon-pools" id="summon-pools"></div>
+
+    <!-- 卡池规则和召唤记录 - 右上角 -->
+    <div class="summon-top-btns">
+      <button class="summon-info-btn" id="btn-summon-rules">卡池规则</button>
+      <button class="summon-info-btn" id="btn-summon-record">召唤记录</button>
+    </div>
+
+    <!-- 海报全屏 -->
+    <img src="" id="summon-poster" class="summon-poster" alt="卡池海报">
+
+    <!-- 召唤信息 -->
+    <div class="summon-info">
+      <div class="summon-time" id="summon-time"></div>
+      <div class="summon-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="summon-progress-fill"></div>
+        </div>
+        <div class="progress-rewards" id="summon-progress-rewards"></div>
+      </div>
+    </div>
+
+    <!-- 召唤按钮 -->
+    <div class="summon-buttons">
+      <button class="summon-btn" id="btn-summon-1">召唤1次</button>
+      <button class="summon-btn" id="btn-summon-10">召唤10次</button>
+    </div>
+  </div>
+
+  <!-- 卡池规则弹窗 -->
+  <div id="summon-rules-modal" class="modal">
+    <div class="rules-content">
+      <h3>卡池规则</h3>
+      <div id="summon-rules-text"></div>
+      <button class="close-btn" id="summon-rules-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 召唤记录弹窗 -->
+  <div id="summon-record-modal" class="modal">
+    <div class="record-content">
+      <h3>召唤记录</h3>
+      <div class="record-list" id="summon-record-list"></div>
+      <button class="close-btn" id="summon-record-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 召唤动画界面 -->
+  <div id="summon-animation-screen" class="screen">
+    <div class="summon-animation-container">
+      <div class="summon-animation" id="summon-animation"></div>
+      <div class="summon-results" id="summon-results" style="display:none;"></div>
+      <button class="confirm-btn" id="summon-results-confirm" style="display:none;">确认</button>
+    </div>
+  </div>
+
+  <!-- 珍馐藏品格解锁弹窗 -->
+  <div id="unlock-slot-modal" class="modal">
+    <div class="unlock-slot-content">
+      <h3>解锁珍馐藏品格</h3>
+      <p>消耗1个珍馐藏品格解锁此格子？</p>
+      <div class="unlock-slot-buttons">
+        <button class="confirm-btn" id="btn-confirm-unlock-slot">确认解锁</button>
+        <button class="close-btn" id="unlock-slot-close">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 邀约兑换弹窗 -->
+  <div id="exchange-modal" class="modal">
+    <div class="exchange-content">
+      <h3>钻研兑换邀约</h3>
+      <p>300钻研兑换1邀约</p>
+      <div class="exchange-input">
+        <label>兑换数量：<input type="number" id="exchange-count" min="1" value="1"></label>
+        <p>需要钻研：<span id="exchange-cost">300</span></p>
+      </div>
+      <div class="exchange-buttons">
+        <button class="confirm-btn" id="btn-confirm-exchange">确认兑换</button>
+        <button class="close-btn" id="exchange-close">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
