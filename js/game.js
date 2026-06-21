@@ -3654,7 +3654,6 @@ class Game {
       <p>• 累计召唤10次，必得A级以上</p>
       <p>• 累计召唤60次，必得S级以上</p>
       <p>• 累计召唤400次，必定获得${this.currentPool.spCharacter ? CHARACTERS[this.currentPool.spCharacter]?.name : '限定厨神'}</p>
-      <p>• 获取本期限定厨神后，保底计数重置</p>
     `;
 
     document.getElementById('summon-rules-modal').classList.add('active');
@@ -3822,9 +3821,7 @@ class Game {
       };
       // 解锁角色（如果未拥有则解锁，否则解锁星座）
       this.unlockCharacter(charId);
-      // 获取限定厨神后重置保底计数（累抽奖励不重置）
-      this.accounts[this.currentAccount].summonCounts[pool.id] = 0;
-      console.log(`获取限定厨神 ${charId}，保底已重置！`);
+      console.log(`获取限定厨神 ${charId}！`);
     } else {
       // 获得道具 - 调整06219：正确保存道具到背包
       const rewards = pool.rewards?.[rarity] || [];
