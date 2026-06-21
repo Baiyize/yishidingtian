@@ -3822,10 +3822,8 @@ class Game {
       };
       // 解锁角色（如果未拥有则解锁，否则解锁星座）
       this.unlockCharacter(charId);
-      // 获取限定厨神后重置保底计数
+      // 获取限定厨神后重置保底计数（累抽奖励不重置）
       this.accounts[this.currentAccount].summonCounts[pool.id] = 0;
-      // 同时重置进度奖励领取状态
-      this.accounts[this.currentAccount].progressClaimed[pool.id] = [];
       console.log(`获取限定厨神 ${charId}，保底已重置！`);
     } else {
       // 获得道具 - 调整06219：正确保存道具到背包
